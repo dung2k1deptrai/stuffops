@@ -1,0 +1,22 @@
+---
+# Source: fluentd/templates/clusterrole.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: fluentd-hddt
+  labels:
+    helm.sh/chart: fluentd-0.4.3
+    app.kubernetes.io/name: fluentd
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/version: "v1.15.2"
+    app.kubernetes.io/managed-by: Helm
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - pods
+      - namespaces
+    verbs:
+      - get
+      - list
+      - watch

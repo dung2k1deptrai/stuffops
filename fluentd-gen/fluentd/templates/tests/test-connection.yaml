@@ -1,0 +1,21 @@
+---
+# Source: fluentd/templates/tests/test-connection.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "fluentd-hddt-test-connection"
+  labels:
+    helm.sh/chart: fluentd-0.4.3
+    app.kubernetes.io/name: fluentd
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/version: "v1.15.2"
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    "helm.sh/hook": test-success
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command: ['wget']
+      args: ['fluentd-hddt:']
+  restartPolicy: Never

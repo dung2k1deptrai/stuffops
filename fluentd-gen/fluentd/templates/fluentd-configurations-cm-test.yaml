@@ -1,0 +1,68 @@
+---
+# Source: fluentd/templates/fluentd-configurations-cm.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fluentd-config-release-name
+  labels:
+    helm.sh/chart: fluentd-0.4.3
+    app.kubernetes.io/name: fluentd
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/version: "v1.15.2"
+    app.kubernetes.io/managed-by: Helm
+data:
+  01_sources.conf: |-
+    ## logs from podman
+    <source>
+      @type tail
+      path /var/log/containers/*.log
+      pos_file /var/log/busybox-containers.log.pos
+      tag iloveyou
+      read_from_head true
+      read_lines_limit 5
+      <parse>
+        @type multi_format
+        <pattern>
+          format json
+          time_key time
+          time_type string
+          time_format "%Y-%m-%dT%H:%M:%S.%NZ"
+          keep_time_key false
+        </pattern>
+        <pattern>
+          format regexp
+          expression /^(?<time>.+) (?<stream>stdout|stderr)( (.))? (?<log>.*)$/
+          time_format '%Y-%m-%dT%H:%M:%S.%NZ'
+          keep_time_key false
+        </pattern>
+      </parse>
+      emit_unmatched_lines true
+    </source>
+
+    <match iloveyou>
+      @type stdout
+    </match>
+
+---
+# Source: fluentd/templates/fluentd-configurations-cm.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fluentd-main-release-name
+  labels:
+    helm.sh/chart: fluentd-0.4.3
+    app.kubernetes.io/name: fluentd
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/version: "v1.15.2"
+    app.kubernetes.io/managed-by: Helm
+data:
+  fluent.conf: |-
+    # do not collect fluentd logs to avoid infinite loops.
+    <label @FLUENT_LOG>
+      <match **>
+        @type null
+        @id ignore_fluent_logs
+      </match>
+    </label>
+
+    @include config.d/*.conf
